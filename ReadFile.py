@@ -3,6 +3,7 @@ import json
 import datetime
 import mysql.connector
 import sys
+import urllib
 #from array import array
 
 def ConvertJSON(json_string):
