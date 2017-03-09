@@ -46,10 +46,14 @@ def openDBconnection():
 #     Start
 # ============
 
-fileName = sys.argv[1]
+startDate = sys.argv[1]
 
-with open(fileName) as data_file:
-    data = json.load(data_file)
+url = "http://10.0.1.58/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + startDate + "&EndDate=" + startDate + "&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
+response = urllib.urlopen(url)
+data = json.loads(response.read())
+
+#with open(fileName) as data_file:
+#    data = json.load(data_file)
 
 StartDate = datetime.datetime.strptime(data["Body"]["Data"]["meter:16501544"]["Start"], "%Y-%m-%dT%H:%M:%S+01:00")
 dataArray = ConvertJSON(data)
