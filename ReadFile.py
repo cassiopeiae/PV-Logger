@@ -50,7 +50,7 @@ def openDBconnection():
 startDate = sys.argv[1]
 
 url = "http://10.0.1.58/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + startDate + "&EndDate=" + startDate + "&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
-response = urlopen(url)
+response = request.urlopen(url)
 data = json.loads(response.read())
 
 #with open(fileName) as data_file:
