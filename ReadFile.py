@@ -77,4 +77,4 @@ con.commit()
 cursor.close()
 con.close()
     
-print(row_count + " records written")
+print(str(row_count) + " records written")
