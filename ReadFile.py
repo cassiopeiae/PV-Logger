@@ -52,7 +52,7 @@ startDate = sys.argv[1]
 url = "http://10.0.1.58/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + startDate + "&EndDate=" + startDate + "&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 print(url)
 #with urllib.request.urlopen(url) as response:
-data = json.loads(urlopen(url).read().decode('utf-8'))
+data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
 print(data)
 #with open(fileName) as data_file:
 #    data = json.load(data_file)
