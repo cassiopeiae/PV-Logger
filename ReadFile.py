@@ -53,7 +53,7 @@ url = "http://10.0.1.58/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate="
 print(url)
 with urllib.request.urlopen(url) as response:
    data = response.read()
-
+print(data)
 #with open(fileName) as data_file:
 #    data = json.load(data_file)
 
