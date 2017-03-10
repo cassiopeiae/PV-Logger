@@ -50,35 +50,31 @@ def openDBconnection():
 startDate = sys.argv[1]
 
 url = "http://10.0.1.58/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + startDate + "&EndDate=" + startDate + "&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
-print(url)
-#with urllib.request.urlopen(url) as response:
+
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
-print(data)
-#with open(fileName) as data_file:
-#    data = json.load(data_file)
 
 StartDate = datetime.datetime.strptime(data["Body"]["Data"]["meter:16501544"]["Start"], "%Y-%m-%dT%H:%M:%S+01:00")
 dataArray = ConvertJSON(data)
 
-print( StartDate)
-
-tst = ConvertJSON(data)
+data_dict = ConvertJSON(data)
 
 con = openDBconnection()
 cursor = con.cursor()
-  
-for row in tst:
+row_count = 0
+
+for row in data_dict:
     
     secOffset = row[0] + 3600
     timestamp = StartDate + datetime.timedelta(seconds=secOffset)
-    print( timestamp)
-    # write log-entry
+    
     sql = "INSERT INTO T_PowerLog (DateTime, EnergyReal_WAC_Sum_Produced, EnergyReal_WAC_Plus_Absolute, EnergyReal_WAC_Minus_Absolute) VALUES (%s, %s, %s, %s)"
     values = (timestamp, row[3], row[1], row[2]) 
     cursor.execute(sql, values)
     recordID = cursor.lastrowid
-    con.commit()
-
+    row_count += 1
+    
+con.commit()
 cursor.close()
 con.close()
     
+print(row_count + " records written")
