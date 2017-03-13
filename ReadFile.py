@@ -54,7 +54,7 @@ def getLastDate():
 
   con.close()
 
-  return record[1]
+  return record[0]
 
 # ============
 #     Start
