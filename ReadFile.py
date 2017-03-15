@@ -64,8 +64,7 @@ def getLastDate():
 #startDate = sys.argv[1]
 startDate = (getLastDate() + datetime.timedelta(minutes=1))
 endDate = datetime.datetime.now()
-print (startDate.isoformat())
-print (endDate.isoformat())
+print ("Starting from: " + startDate.isoformat())
 
 url = "http://10.0.1.58/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate.isoformat()) + "+01:00&EndDate=" + str(endDate.isoformat()) + "+01:00&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
@@ -93,5 +92,6 @@ for row in data_dict:
 con.commit()
 cursor.close()
 con.close()
-    
+
+print("Last entry from: " + str(timestamp))
 print(str(row_count) + " records written")
