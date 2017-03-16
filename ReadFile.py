@@ -7,6 +7,7 @@ import urllib.request
 #from array import array
 
 def ConvertJSON(json_string):
+
     TimeSpanInSec = json_string["Body"]["Data"]["inverter/1"]["Data"]["TimeSpanInSec"]["Values"]
     EnergyReal_WAC_Sum_Produced = json_string["Body"]["Data"]["inverter/1"]["Data"]["EnergyReal_WAC_Sum_Produced"]["Values"]
     EnergyReal_WAC_Plus_Absolute = json_string["Body"]["Data"]["meter:16501544"]["Data"]["EnergyReal_WAC_Plus_Absolute"]["Values"]
@@ -43,17 +44,31 @@ def openDBconnection():
     else:
         return cnx
     
+def getLastDate():
+# Get next entry from the queue
+
+  con = openDBconnection()
+  cursor = con.cursor()
+  cursor.execute("SELECT max(DateTime) from T_PowerLog")
+
+  record = cursor.fetchone()
+
+  con.close()
+
+  return record[0]
+
 # ============
 #     Start
 # ============
 
-startDate = sys.argv[1]
+#startDate = sys.argv[1]
+startDate = (getLastDate() + datetime.timedelta(minutes=1))
+endDate = datetime.datetime.now()
+print ("Starting from: " + startDate.isoformat())
 
-url = "http://10.0.1.58/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + startDate + "&EndDate=" + startDate + "&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
-
+url = "http://10.0.1.58/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate.isoformat()) + "+01:00&EndDate=" + str(endDate.isoformat()) + "+01:00&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
-
-StartDate = datetime.datetime.strptime(data["Body"]["Data"]["meter:16501544"]["Start"], "%Y-%m-%dT%H:%M:%S+01:00")
+#StartDate = datetime.datetime.strptime(data["Body"]["Data"]["meter:16501544"]["Start"], "%Y-%m-%dT%H:%M:%S+01:00")
 dataArray = ConvertJSON(data)
 
 data_dict = ConvertJSON(data)
@@ -65,10 +80,11 @@ row_count = 0
 for row in data_dict:
     
     secOffset = row[0] + 3600
-    timestamp = StartDate + datetime.timedelta(seconds=secOffset)
+    timestamp = startDate + datetime.timedelta(seconds=secOffset)
     
     sql = "INSERT INTO T_PowerLog (DateTime, EnergyReal_WAC_Sum_Produced, EnergyReal_WAC_Plus_Absolute, EnergyReal_WAC_Minus_Absolute) VALUES (%s, %s, %s, %s)"
     values = (timestamp, row[3], row[1], row[2]) 
+#    print (str(values))
     cursor.execute(sql, values)
     recordID = cursor.lastrowid
     row_count += 1
@@ -76,5 +92,6 @@ for row in data_dict:
 con.commit()
 cursor.close()
 con.close()
-    
+
+print("Last entry from: " + str(timestamp))
 print(str(row_count) + " records written")
