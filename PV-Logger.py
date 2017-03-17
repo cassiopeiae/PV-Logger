@@ -76,7 +76,6 @@ sql_user_pwd = config['mysql']['dbpwd']
 
 startDate = (getLastDate() + datetime.timedelta(minutes=1))
 endDate = datetime.datetime.now()
-print ("Starting from: " + startDate.isoformat())
 
 url = "http://" + inverter_ip + "/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate.isoformat()) + "+01:00&EndDate=" + str(endDate.isoformat()) + "+01:00&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
@@ -87,6 +86,8 @@ data_dict = ConvertJSON(data)
 con = openDBconnection()
 cursor = con.cursor()
 row_count = 0
+firstTime = endDate
+lastTime = startDate
 
 for row in data_dict:
     
@@ -99,10 +100,15 @@ for row in data_dict:
     cursor.execute(sql, values)
     recordID = cursor.lastrowid
     row_count += 1
+    if timestamp < firstTime:
+        firstTime = timestamp
+    if timestamp > lastTime:
+        lastTime = timesamp
     
 con.commit()
 cursor.close()
 con.close()
 
-print("Last entry from: " + str(timestamp))
+print("First entry from: " + str(firstTime))
+print("Last entry from: " + str(lastTime))
 print(str(row_count) + " records written")
