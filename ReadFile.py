@@ -4,6 +4,7 @@ import datetime
 import mysql.connector
 import sys
 import urllib.request
+import configparser
 #from array import array
 
 def ConvertJSON(json_string):
@@ -28,10 +29,10 @@ def ConvertJSON(json_string):
     
 def openDBconnection():
     try:
-          cnx = mysql.connector.connect(host='10.0.1.10',
-                                        user='PV_user',
-                                        password='LEmUGR3vewIWcKrU',
-                                        database='PV')
+          cnx = mysql.connector.connect(host=sql_host,
+                                        user=sql_user,
+                                        password=sql_user_pwd,
+                                        database=sql_db)
     except mysql.connector.Error as err:
  #       if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
  #           print("Something is wrong with your user name or password")
@@ -61,14 +62,24 @@ def getLastDate():
 #     Start
 # ============
 
-#startDate = sys.argv[1]
+# Read configuration file
+config = configparser.ConfigParser()
+config.sections()
+config.read("PV-Logger.conf")
+
+inverter_ip = config['inverter']['inverter_ip']
+sql_host = config['mysql']['dbhost']
+sql_db = config['mysql']['db']
+sql_user = config['mysql']['dbuser']
+sql_user_pwd = config['mysql']['dbpwd']
+# ----------------------------------------------------
+
 startDate = (getLastDate() + datetime.timedelta(minutes=1))
 endDate = datetime.datetime.now()
 print ("Starting from: " + startDate.isoformat())
 
-url = "http://10.0.1.58/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate.isoformat()) + "+01:00&EndDate=" + str(endDate.isoformat()) + "+01:00&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
+url = "http://" + inverter_ip + "/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate.isoformat()) + "+01:00&EndDate=" + str(endDate.isoformat()) + "+01:00&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
-#StartDate = datetime.datetime.strptime(data["Body"]["Data"]["meter:16501544"]["Start"], "%Y-%m-%dT%H:%M:%S+01:00")
 dataArray = ConvertJSON(data)
 
 data_dict = ConvertJSON(data)
