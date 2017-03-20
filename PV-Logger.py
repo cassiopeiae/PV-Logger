@@ -21,9 +21,18 @@ def ConvertJSON(json_string):
     for key in keys:
         row = keys.index(key)
         json_array[row][0] = int(key)
-        json_array[row][1] = EnergyReal_WAC_Plus_Absolute[key]
-        json_array[row][2] = EnergyReal_WAC_Minus_Absolute[key]
         json_array[row][3] = EnergyReal_WAC_Sum_Produced[key]
+        if key in EnergyReal_WAC_Plus_Absolute:
+           json_array[row][1] = EnergyReal_WAC_Plus_Absolute[key]
+           json_array[row][2] = EnergyReal_WAC_Minus_Absolute[key]
+        elif str(int(key)+1) in EnergyReal_WAC_Plus_Absolute:
+           key = str(int(key)+1)
+           json_array[row][1] = EnergyReal_WAC_Plus_Absolute[key]
+           json_array[row][2] = EnergyReal_WAC_Minus_Absolute[key]
+        elif str(int(key)-1) in EnergyReal_WAC_Plus_Absolute:
+           key = str(int(key)-1)
+           json_array[row][1] = EnergyReal_WAC_Plus_Absolute[key]
+           json_array[row][2] = EnergyReal_WAC_Plus_Absolute[key]
 
     return json_array
     
@@ -79,6 +88,7 @@ endDate = datetime.datetime.now()
 
 url = "http://" + inverter_ip + "/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate.isoformat()) + "+01:00&EndDate=" + str(endDate.isoformat()) + "+01:00&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
+print(url)
 dataArray = ConvertJSON(data)
 
 data_dict = ConvertJSON(data)
@@ -103,7 +113,7 @@ for row in data_dict:
     if timestamp < firstTime:
         firstTime = timestamp
     if timestamp > lastTime:
-        lastTime = timesamp
+        lastTime = timestamp
     
 con.commit()
 cursor.close()
