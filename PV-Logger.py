@@ -74,7 +74,7 @@ def getLastDate():
 # Read configuration file
 config = configparser.ConfigParser()
 config.sections()
-config.read("PV-Logger.conf")
+config.read("/home/matz/PV_scripts/PV-Logger.conf")
 
 inverter_ip = config['inverter']['inverter_ip']
 sql_host = config['mysql']['dbhost']
@@ -119,7 +119,7 @@ cursor.close()
 con.close()
 
 # Write LOG-File
-logfile = open('PV-Logger.log', "a")
+logfile = open('/home/matz/PV_scripts/PV-Logger.log', "a")
 logfile.write("%s: URL: %s\n" % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), url))
 logfile.write("%s: First entry from: %s\n" % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), str(firstTime)))
 logfile.write("%s: Last Entry from: %s\n" % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), str(lastTime)))
