@@ -67,6 +67,24 @@ def getLastDate():
 
   return record[0]
 
+class CET_timezone(tzinfo):
+  def utcoffset(self,dt): 
+      return timedelta(hours=1)
+
+  def tzname(self,dt): 
+    return "GMT +1"
+
+  def dst(self,dt): 
+    # DST starts last Sunday in March
+    d = datetime(dt.year, 4, 1)   # ends last Sunday in October
+    self.dston = d - timedelta(days=d.weekday() + 1)
+    d = datetime(dt.year, 11, 1)
+    self.dstoff = d - timedelta(days=d.weekday() + 1)
+    if self.dston <=  dt.replace(tzinfo=None) < self.dstoff:
+      return timedelta(hours=1)
+    else:
+      return timedelta(0)
+      
 # ============
 #     Start
 # ============
@@ -84,7 +102,11 @@ sql_user_pwd = config['mysql']['dbpwd']
 # ----------------------------------------------------
 
 startDate = (getLastDate() + datetime.timedelta(minutes=1))
-endDate = datetime.datetime.now()
+endDate = datetime.datetime.now(tz=CET_timezone)
+UTC_offset = endDate.utcoffset()+endDate.dst()
+print (startDate.isoformat())
+print (endDate.isoformat())
+print ende 
 
 url = "http://" + inverter_ip + "/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate.isoformat()) + "+01:00&EndDate=" + str(endDate.isoformat()) + "+01:00&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
