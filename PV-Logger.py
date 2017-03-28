@@ -101,11 +101,13 @@ sql_user = config['mysql']['dbuser']
 sql_user_pwd = config['mysql']['dbpwd']
 # ----------------------------------------------------
 
-startDate = (getLastDate() + datetime.timedelta(minutes=1))
-endDate = datetime.now(tz=CET_timezone)
+startDate = (getLastDate() + timedelta(minutes=1))
+endDate = datetime.now(tz=CET_timezone())
 UTC_offset = endDate.utcoffset()+endDate.dst()
 print (startDate.isoformat())
 print (endDate.isoformat())
+print (str(UTC_offset))
+print (datetime.utcnow())
 quit()
 
 url = "http://" + inverter_ip + "/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate.isoformat()) + "+01:00&EndDate=" + str(endDate.isoformat()) + "+01:00&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
