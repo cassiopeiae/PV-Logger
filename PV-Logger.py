@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import json
-import datetime
+from datetime import tzinfo, timedelta, datetime
 import mysql.connector
 import sys
 import urllib.request
@@ -102,11 +102,11 @@ sql_user_pwd = config['mysql']['dbpwd']
 # ----------------------------------------------------
 
 startDate = (getLastDate() + datetime.timedelta(minutes=1))
-endDate = datetime.datetime.now(tz=CET_timezone)
+endDate = datetime.now(tz=CET_timezone)
 UTC_offset = endDate.utcoffset()+endDate.dst()
 print (startDate.isoformat())
 print (endDate.isoformat())
-print ende 
+quit()
 
 url = "http://" + inverter_ip + "/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate.isoformat()) + "+01:00&EndDate=" + str(endDate.isoformat()) + "+01:00&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
