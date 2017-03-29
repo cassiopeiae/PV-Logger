@@ -122,11 +122,11 @@ for row in data_dict:
 #    print (str(values))
 #    cursor.execute(sql, values)
 #    recordID = cursor.lastrowid
-    row_count += 1
-    if timestamp < firstTime:
-        firstTime = timestamp
-    if timestamp > lastTime:
-        lastTime = timestamp
+#    row_count += 1
+#    if timestamp < firstTime:
+#        firstTime = timestamp
+#    if timestamp > lastTime:
+#        lastTime = timestamp
     
 #con.commit()
 cursor.close()
