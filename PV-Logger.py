@@ -68,24 +68,6 @@ def getLastDate():
   
   return record[0]
 
-class CET_timezone(tzinfo):
-  def utcoffset(self,dt): 
-      return timedelta(hours=1)
-
-  def tzname(self,dt): 
-    return "GMT +1"
-
-  def dst(self,dt): 
-    # DST starts last Sunday in March
-    d = datetime(dt.year, 4, 1)   # ends last Sunday in October
-    self.dston = d - timedelta(days=d.weekday() + 1)
-    d = datetime(dt.year, 11, 1)
-    self.dstoff = d - timedelta(days=d.weekday() + 1)
-    if self.dston <=  dt.replace(tzinfo=None) < self.dstoff:
-      return timedelta(hours=1)
-    else:
-      return timedelta(0)
-      
 # ============
 #     Start
 # ============
@@ -102,27 +84,26 @@ sql_user = config['mysql']['dbuser']
 sql_user_pwd = config['mysql']['dbpwd']
 # ----------------------------------------------------
 
-timezone_CET = pytz.timezone('Europe/Vienna')
-startDate = (getLastDate() + timedelta(minutes=1))
-endDate = timezone_CET.localize(datetime.now())
-#UTC_offset = endDate.utcoffset()+endDate.dst()
-print (startDate.isoformat()) 
-print (endDate.isoformat()) 
-print (timezone_CET.localize(startDate)) 
+# Set Date-Parameters
+# --- define timezones
 UTC = pytz.utc 
-print( UTC.localize(startDate + timedelta(seconds=-7200)))
+timezone_CET = pytz.timezone('Europe/Vienna')
 
-#print (str(UTC_offset))
-#print (datetime.utcnow())
-#quit()
+# --- get start-date
+startDate = (getLastDate() + timedelta(minutes=1))
 
-url = "http://" + inverter_ip + "/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate.isoformat()) + "+01:00&EndDate=" + str(endDate.isoformat()) + "+01:00&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
+# --- localise dates
+startDate_loc = timezone_CET.localize(startDate)
+endDate_loc = timezone_CET.localize(datetime.now())
+
+print ("StartDate: " & startDate.isoformat() & " --- " & startDate_loc.isoformat()) 
+print ("EndDate: " & endDate.isoformat() & " --- " & endDate_loc.isoformat()) 
+
+url = "http://" + inverter_ip + "/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate_loc.isoformat()) + "&EndDate=" + str(endDate_loc.isoformat()) + "&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
-#dataArray = ConvertJSON(data)
 
 data_dict = ConvertJSON(data)
-print (startDate)
-quit()
+#quit()
 
 con = openDBconnection()
 cursor = con.cursor()
@@ -132,21 +113,22 @@ lastTime = startDate
 
 for row in data_dict:
     
-    secOffset = row[0] + 3600
-    timestamp = startDate + datetime.timedelta(seconds=secOffset)
-    
-    sql = "INSERT INTO T_PowerLog (DateTime, EnergyReal_WAC_Sum_Produced, EnergyReal_WAC_Plus_Absolute, EnergyReal_WAC_Minus_Absolute) VALUES (%s, %s, %s, %s)"
-    values = (timestamp, row[3], row[1], row[2]) 
+#    secOffset = row[0] + 3600
+    timestamp = UTC.localize(startDate + datetime.timedelta(seconds=row[0])
+    print(timestamp.isoformat() & " --- " &timestamp.asintimezone(timezone_CET).isoformat())
+
+#    sql = "INSERT INTO T_PowerLog (DateTime, EnergyReal_WAC_Sum_Produced, EnergyReal_WAC_Plus_Absolute, EnergyReal_WAC_Minus_Absolute) VALUES (%s, %s, %s, %s)"
+#    values = (timestamp, row[3], row[1], row[2]) 
 #    print (str(values))
-    cursor.execute(sql, values)
-    recordID = cursor.lastrowid
+#    cursor.execute(sql, values)
+#    recordID = cursor.lastrowid
     row_count += 1
     if timestamp < firstTime:
         firstTime = timestamp
     if timestamp > lastTime:
         lastTime = timestamp
     
-con.commit()
+#con.commit()
 cursor.close()
 con.close()
 
