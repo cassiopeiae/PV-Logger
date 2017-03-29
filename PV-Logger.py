@@ -6,7 +6,6 @@ import mysql.connector
 import sys
 import urllib.request
 import configparser
-#from array import array
 
 def ConvertJSON(json_string):
 
@@ -96,14 +95,10 @@ startDate = (getLastDate() + timedelta(minutes=1))
 startDate_loc = timezone_CET.localize(startDate)
 endDate_loc = timezone_CET.localize(datetime.now())
 
-print ("StartDate: " + startDate.isoformat() + " --- " + startDate_loc.isoformat()) 
-print ("EndDate: " + endDate_loc.isoformat()) 
-
 url = "http://" + inverter_ip + "/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate_loc.isoformat()) + "&EndDate=" + str(endDate_loc.isoformat()) + "&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
 
 data_dict = ConvertJSON(data)
-#quit()
 
 con = openDBconnection()
 cursor = con.cursor()
@@ -113,13 +108,10 @@ lastTime = startDate_loc
 
 for row in data_dict:
     
-#    secOffset = row[0] + 3600
     timestamp = UTC.localize(startDate + timedelta(seconds=row[0]))
-    print(timestamp.isoformat() + " --- " + timestamp.astimezone(timezone_CET).isoformat())
 
     sql = "INSERT INTO T_PowerLog (DateTime, EnergyReal_WAC_Sum_Produced, EnergyReal_WAC_Plus_Absolute, EnergyReal_WAC_Minus_Absolute) VALUES (%s, %s, %s, %s)"
     values = (timestamp.astimezone(timezone_CET), row[3], row[1], row[2]) 
-#    print (str(values))
     cursor.execute(sql, values)
     recordID = cursor.lastrowid
     row_count += 1
