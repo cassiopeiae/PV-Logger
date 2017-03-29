@@ -106,7 +106,7 @@ sql_user_pwd = config['mysql']['dbpwd']
 
 timezone_CET = pytz.timezone('Europe/Vienna')
 startDate = (getLastDate() + timedelta(minutes=1))
-endDate = timezone_CET.localize(now())
+endDate = timezone_CET.localize(datetime.now())
 #UTC_offset = endDate.utcoffset()+endDate.dst()
 print (startDate.isoformat())
 print (endDate.isoformat())
