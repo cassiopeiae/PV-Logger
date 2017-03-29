@@ -96,8 +96,8 @@ startDate = (getLastDate() + timedelta(minutes=1))
 startDate_loc = timezone_CET.localize(startDate)
 endDate_loc = timezone_CET.localize(datetime.now())
 
-print ("StartDate: " & startDate.isoformat() & " --- " & startDate_loc.isoformat()) 
-print ("EndDate: " & endDate.isoformat() & " --- " & endDate_loc.isoformat()) 
+print ("StartDate: " + startDate.isoformat() + " --- " + startDate_loc.isoformat()) 
+print ("EndDate: " + endDate.isoformat() + " --- " + endDate_loc.isoformat()) 
 
 url = "http://" + inverter_ip + "/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate_loc.isoformat()) + "&EndDate=" + str(endDate_loc.isoformat()) + "&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
@@ -115,7 +115,7 @@ for row in data_dict:
     
 #    secOffset = row[0] + 3600
     timestamp = UTC.localize(startDate + datetime.timedelta(seconds=row[0]))
-    print(timestamp.isoformat() & " --- " &timestamp.asintimezone(timezone_CET).isoformat())
+    print(timestamp.isoformat() + " --- " + timestamp.asintimezone(timezone_CET).isoformat())
 
 #    sql = "INSERT INTO T_PowerLog (DateTime, EnergyReal_WAC_Sum_Produced, EnergyReal_WAC_Plus_Absolute, EnergyReal_WAC_Minus_Absolute) VALUES (%s, %s, %s, %s)"
 #    values = (timestamp, row[3], row[1], row[2]) 
