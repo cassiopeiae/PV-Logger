@@ -108,7 +108,7 @@ data_dict = ConvertJSON(data)
 con = openDBconnection()
 cursor = con.cursor()
 row_count = 0
-firstTime = endDate
+firstTime = endDate_loc
 lastTime = startDate
 
 for row in data_dict:
