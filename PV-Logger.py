@@ -97,7 +97,7 @@ startDate_loc = timezone_CET.localize(startDate)
 endDate_loc = timezone_CET.localize(datetime.now())
 
 print ("StartDate: " + startDate.isoformat() + " --- " + startDate_loc.isoformat()) 
-print ("EndDate: " + endDate.isoformat() + " --- " + endDate_loc.isoformat()) 
+print ("EndDate: " + endDate_loc.isoformat()) 
 
 url = "http://" + inverter_ip + "/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate_loc.isoformat()) + "&EndDate=" + str(endDate_loc.isoformat()) + "&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
