@@ -109,7 +109,7 @@ con = openDBconnection()
 cursor = con.cursor()
 row_count = 0
 firstTime = endDate_loc
-lastTime = startDate
+lastTime = startDate_loc
 
 for row in data_dict:
     
@@ -117,26 +117,26 @@ for row in data_dict:
     timestamp = UTC.localize(startDate + timedelta(seconds=row[0]))
     print(timestamp.isoformat() + " --- " + timestamp.astimezone(timezone_CET).isoformat())
 
-#    sql = "INSERT INTO T_PowerLog (DateTime, EnergyReal_WAC_Sum_Produced, EnergyReal_WAC_Plus_Absolute, EnergyReal_WAC_Minus_Absolute) VALUES (%s, %s, %s, %s)"
-#    values = (timestamp, row[3], row[1], row[2]) 
+    sql = "INSERT INTO T_PowerLog (DateTime, EnergyReal_WAC_Sum_Produced, EnergyReal_WAC_Plus_Absolute, EnergyReal_WAC_Minus_Absolute) VALUES (%s, %s, %s, %s)"
+    values = (timestamp.astimezone(timezone_CET), row[3], row[1], row[2]) 
 #    print (str(values))
-#    cursor.execute(sql, values)
-#    recordID = cursor.lastrowid
-#    row_count += 1
-#    if timestamp < firstTime:
-#        firstTime = timestamp
-#    if timestamp > lastTime:
-#        lastTime = timestamp
+    cursor.execute(sql, values)
+    recordID = cursor.lastrowid
+    row_count += 1
+    if timestamp.astimezone(timezone_CET) < firstTime:
+        firstTime = timestamp.astimezone(timezone_CET)
+    if timestamp.astimezone(timezone_CET) > lastTime:
+        lastTime = timestamp.astimezone(timezone_CET)
     
-#con.commit()
+con.commit()
 cursor.close()
 con.close()
 
 # Write LOG-File
 logfile = open('/home/matz/PV_scripts/PV-Logger.log', "a")
-logfile.write("%s: URL: %s\n" % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), url))
-logfile.write("%s: First entry from: %s\n" % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), str(firstTime)))
-logfile.write("%s: Last Entry from: %s\n" % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), str(lastTime)))
-logfile.write("%s: %s records written\n" % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), str(row_count)))
+logfile.write("%s: URL: %s\n" % (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), url))
+logfile.write("%s: First entry from: %s\n" % (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), str(firstTime)))
+logfile.write("%s: Last Entry from: %s\n" % (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), str(lastTime)))
+logfile.write("%s: %s records written\n" % (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), str(row_count)))
 logfile.write("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 logfile.close
