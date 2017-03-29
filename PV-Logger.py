@@ -14,7 +14,7 @@ def ConvertJSON(json_string):
     EnergyReal_WAC_Sum_Produced = json_string["Body"]["Data"]["inverter/1"]["Data"]["EnergyReal_WAC_Sum_Produced"]["Values"]
     EnergyReal_WAC_Plus_Absolute = json_string["Body"]["Data"]["meter:16501544"]["Data"]["EnergyReal_WAC_Plus_Absolute"]["Values"]
     EnergyReal_WAC_Minus_Absolute = json_string["Body"]["Data"]["meter:16501544"]["Data"]["EnergyReal_WAC_Minus_Absolute"]["Values"]
- 
+
     keys = list(TimeSpanInSec)
  
     json_array = [[0 for j in range(5)] for i in range(len(TimeSpanInSec))]
@@ -66,9 +66,7 @@ def getLastDate():
 
   con.close()
   
-  lastDate = timezone_CET.localize(record[0])
-
-  return lastDate
+  return record[0]
 
 class CET_timezone(tzinfo):
   def utcoffset(self,dt): 
@@ -108,17 +106,23 @@ timezone_CET = pytz.timezone('Europe/Vienna')
 startDate = (getLastDate() + timedelta(minutes=1))
 endDate = timezone_CET.localize(datetime.now())
 #UTC_offset = endDate.utcoffset()+endDate.dst()
-print (startDate.isoformat())
-print (endDate.isoformat())
+print (startDate.isoformat()) 
+print (endDate.isoformat()) 
+print (timezone_CET.localize(startDate)) 
+UTC = pytz.utc 
+print( UTC.localize(startDate + timedelta(seconds=-7200)))
+
 #print (str(UTC_offset))
 #print (datetime.utcnow())
-quit()
+#quit()
 
 url = "http://" + inverter_ip + "/solar_api/v1/GetArchiveData.cgi?Scope=System&StartDate=" + str(startDate.isoformat()) + "+01:00&EndDate=" + str(endDate.isoformat()) + "+01:00&Channel=EnergyReal_WAC_Sum_Produced&Channel=TimeSpanInSec&Channel=EnergyReal_WAC_Plus_Absolute&Channel=EnergyReal_WAC_Minus_Absolute"
 data = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
-dataArray = ConvertJSON(data)
+#dataArray = ConvertJSON(data)
 
 data_dict = ConvertJSON(data)
+print (startDate)
+quit()
 
 con = openDBconnection()
 cursor = con.cursor()
