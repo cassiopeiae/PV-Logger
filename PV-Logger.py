@@ -114,7 +114,7 @@ lastTime = startDate
 for row in data_dict:
     
 #    secOffset = row[0] + 3600
-    timestamp = UTC.localize(startDate + datetime.timedelta(seconds=row[0]))
+    timestamp = UTC.localize(startDate + timedelta(seconds=row[0]))
     print(timestamp.isoformat() + " --- " + timestamp.asintimezone(timezone_CET).isoformat())
 
 #    sql = "INSERT INTO T_PowerLog (DateTime, EnergyReal_WAC_Sum_Produced, EnergyReal_WAC_Plus_Absolute, EnergyReal_WAC_Minus_Absolute) VALUES (%s, %s, %s, %s)"
